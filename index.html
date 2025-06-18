@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Instagram Login</title>
   <style>
     * {
@@ -20,12 +20,56 @@
       min-height: 100vh;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
+    .entry-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .entry-modal {
+      background-color: #fff;
+      padding: 25px 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 320px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .entry-modal p {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .entry-modal button {
+      background-color: #0095f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
     .container {
       width: 100%;
       max-width: 350px;
       padding: 40px 30px;
       background-color: #fff;
       border: 1px solid #dbdbdb;
+      display: none; /* Se oculta hasta presionar "Continuar" */
     }
 
     .logo {
@@ -47,7 +91,7 @@
       font-size: 14px;
     }
 
-    button {
+    button[type="submit"] {
       width: 100%;
       background-color: #0095f6;
       color: #fff;
@@ -58,12 +102,6 @@
       cursor: pointer;
       margin-top: 10px;
       font-size: 14px;
-      transition: background-color 0.2s ease;
-    }
-
-    button:disabled {
-      background-color: #b2dffc;
-      cursor: not-allowed;
     }
 
     .divider {
@@ -91,14 +129,12 @@
       font-weight: bold;
       font-size: 14px;
       margin-bottom: 20px;
-      cursor: pointer;
     }
 
     .forgot {
       text-align: center;
       font-size: 12px;
       color: #00376b;
-      cursor: pointer;
     }
 
     .signup {
@@ -110,6 +146,7 @@
       border: 1px solid #dbdbdb;
       text-align: center;
       font-size: 14px;
+      display: none; /* Oculto hasta presionar "Continuar" */
     }
 
     .signup a {
@@ -118,59 +155,34 @@
       text-decoration: none;
     }
 
-    /* Notificación modal */
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-
-    .modal {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 300px;
-      text-align: center;
-      position: relative;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-
-    .modal .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #555;
-    }
-
     @media (max-width: 400px) {
       .container {
-        padding: 30px 20px;
         border: none;
+        padding: 30px 20px;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <!-- Notificación tipo modal -->
+  <div class="entry-overlay" id="entryOverlay">
+    <div class="entry-modal">
+      <p>Para ver esta publicación debes ingresar desde la web.</p>
+      <button id="entryContinue">Continuar</button>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="container" id="mainContainer">
     <div class="logo">
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/2560px-Instagram_logo.svg.png" alt="Instagram">
     </div>
 
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Teléfono, usuario o correo electrónico" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <button type="submit" id="loginBtn" disabled>Iniciar sesión</button>
+    <form>
+      <input type="text" placeholder="Teléfono, usuario o correo electrónico" required>
+      <input type="password" placeholder="Contraseña" required>
+      <button type="submit">Iniciar sesión</button>
     </form>
 
     <div class="divider">
@@ -183,51 +195,110 @@
     <div class="forgot">¿Olvidaste tu contraseña?</div>
   </div>
 
-  <div class="signup">
+  <div class="signup" id="signupContent">
     ¿No tienes una cuenta? <a href="#">Regístrate</a>
   </div>
 
-  <!-- Notificación modal -->
-  <div class="overlay" id="modalOverlay">
-    <div class="modal">
-      <span class="close-btn" id="closeModal">&times;</span>
-      <p>Algo ocurrió mal, no se pudo iniciar sesión.</p>
-    </div>
-  </div>
-
   <script>
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const loginBtn = document.getElementById('loginBtn');
-    const form = document.getElementById('loginForm');
-    const modalOverlay = document.getElementById('modalOverlay');
-    const closeModal = document.getElementById('closeModal');
+    const continueBtn = document.getElementById('entryContinue');
+    const entryOverlay = document.getElementById('entryOverlay');
+    const mainContent = document.getElementById('mainContainer');
+    const signupContent = document.getElementById('signupContent');
 
-    function checkInputs() {
-      const user = usernameInput.value.trim();
-      const pass = passwordInput.value.trim();
-      loginBtn.disabled = !(user && pass);
-    }
-
-    usernameInput.addEventListener('input', checkInputs);
-    passwordInput.addEventListener('input', checkInputs);
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      modalOverlay.style.display = 'flex';
-    });
-
-    closeModal.addEventListener('click', () => {
-      modalOverlay.style.display = 'none';
-    });
-
-    // Opcional: cerrar clickeando fuera del modal
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) {
-        modalOverlay.style.display = 'none';
-      }
+    continueBtn.addEventListener('click', () => {
+      entryOverlay.style.display = 'none';
+      mainContent.style.display = 'block';
+      signupContent.style.display = 'block';
     });
   </script>
+
+  <!-- Notificación de error -->
+<div class="error-overlay" id="errorOverlay">
+  <div class="error-modal">
+    <span class="close-error" id="closeError">✖</span><br>
+    <p>Algo ocurrió mal, no se pudo iniciar sesión</p>
+  </div>
+</div>
+
+<style>
+  .error-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .error-modal {
+    background-color: white;
+    padding: 20px 25px;
+    border-radius: 10px;
+    position: relative;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .error-modal p {
+    margin: 0;
+    font-size: 15px;
+    color: #333;
+  }
+
+  .close-error {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+  }
+
+  button[disabled] {
+    background-color: #b2dffc !important;
+    cursor: not-allowed !important;
+  }
+</style>
+
+<script>
+  const usernameInput = document.querySelector('input[type="text"]');
+  const passwordInput = document.querySelector('input[type="password"]');
+  const loginButton = document.querySelector('button[type="submit"]');
+  const errorOverlay = document.getElementById('errorOverlay');
+  const closeError = document.getElementById('closeError');
+
+  // Función para verificar campos
+  function checkInputs() {
+    if (usernameInput.value.trim() !== "" && passwordInput.value.trim() !== "") {
+      loginButton.disabled = false;
+    } else {
+      loginButton.disabled = true;
+    }
+  }
+
+  // Escuchamos los inputs
+  usernameInput.addEventListener('input', checkInputs);
+  passwordInput.addEventListener('input', checkInputs);
+
+  // Mostrar error al enviar
+  document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    errorOverlay.style.display = 'flex';
+  });
+
+  // Cerrar notificación
+  closeError.addEventListener('click', () => {
+    errorOverlay.style.display = 'none';
+  });
+
+  // Estado inicial
+  loginButton.disabled = true;
+</script>
 
 </body>
 </html>
