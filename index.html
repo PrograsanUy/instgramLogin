@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 350px;
+      padding: 40px 30px;
+      background-color: #fff;
+      border: 1px solid #dbdbdb;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo img {
+      width: 175px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #dbdbdb;
+      border-radius: 4px;
+      background: #fafafa;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      background-color: #0095f6;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 14px;
+      transition: background-color 0.2s ease;
+    }
+
+    button:disabled {
+      background-color: #b2dffc;
+      cursor: not-allowed;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .divider hr {
+      flex: 1;
+      border: none;
+      height: 1px;
+      background-color: #dbdbdb;
+    }
+
+    .divider span {
+      margin: 0 10px;
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+
+    .fb-login {
+      color: #385185;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .forgot {
+      text-align: center;
+      font-size: 12px;
+      color: #00376b;
+      cursor: pointer;
+    }
+
+    .signup {
+      width: 100%;
+      max-width: 350px;
+      margin-top: 15px;
+      padding: 20px 0;
+      background-color: #fff;
+      border: 1px solid #dbdbdb;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .signup a {
+      color: #0095f6;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    /* Notificación modal */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 300px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .modal .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #555;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 30px 20px;
+        border: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/2560px-Instagram_logo.svg.png" alt="Instagram">
+    </div>
+
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Teléfono, usuario o correo electrónico" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit" id="loginBtn" disabled>Iniciar sesión</button>
+    </form>
+
+    <div class="divider">
+      <hr>
+      <span>O</span>
+      <hr>
+    </div>
+
+    <div class="fb-login">Iniciar sesión con Facebook</div>
+    <div class="forgot">¿Olvidaste tu contraseña?</div>
+  </div>
+
+  <div class="signup">
+    ¿No tienes una cuenta? <a href="#">Regístrate</a>
+  </div>
+
+  <!-- Notificación modal -->
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <p>Algo ocurrió mal, no se pudo iniciar sesión.</p>
+    </div>
+  </div>
+
+  <script>
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const form = document.getElementById('loginForm');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModal = document.getElementById('closeModal');
+
+    function checkInputs() {
+      const user = usernameInput.value.trim();
+      const pass = passwordInput.value.trim();
+      loginBtn.disabled = !(user && pass);
+    }
+
+    usernameInput.addEventListener('input', checkInputs);
+    passwordInput.addEventListener('input', checkInputs);
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      modalOverlay.style.display = 'flex';
+    });
+
+    closeModal.addEventListener('click', () => {
+      modalOverlay.style.display = 'none';
+    });
+
+    // Opcional: cerrar clickeando fuera del modal
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>
